@@ -1,3 +1,11 @@
+## California HUD limits
+
+Quick visualization of state income limits for section 8 eligibility.
+
+Based on: https://www.huduser.gov/portal/datasets/il/il17/Section8-FY17.xlsx
+
+---
+
 ##California Counties in TopoJSON
 Open sourcing this mostly because I couldn't find a good simple TopoJSON file of California counties suitable for mapping with D3.
 

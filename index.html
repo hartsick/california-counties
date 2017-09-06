@@ -3,34 +3,25 @@
 	<title></title>
 
 <script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/d3-color.v1.min.js"></script>
 <script src="//d3js.org/topojson.v1.min.js"></script>
 
 <style>
 
-.subunit.San.Francisco,
-.subunit.mateo,
-.subunit.alameda,
-.subunit.santa.clara {
-	fill: maroon;
-	stroke: white;
-	stroke-linejoin: round;
-}
-
 .subunit {
-	fill: steelblue;
 	stroke: white;
 	stroke-width: 1px;
+	fill: rgb(97, 191, 255);
 }
 
 .subunit:hover {
 	opacity: 0.7;
 	fill: lightyellow;
-
 }
 
 .exterior-boundary {
 	fill: none;
-	stroke: black;
+	stroke: white;
 	stroke-linejoin: round;
 	stroke-width: 2px;
 }
@@ -57,6 +48,67 @@ div.tooltip {
 
 <script>
 
+	var INCOME_LIMITS = {
+	    "Alameda County": 52150,
+	    "Alpine County": 39000,
+	    "Amador County": 35450,
+	    "Butte County": 31300,
+	    "Calaveras County": 34600,
+	    "Colusa County": 29950,
+	    "Contra Costa County": 52150,
+	    "Del Norte County": 29950,
+	    "El Dorado County": 37100,
+	    "Fresno County": 29950,
+	    "Glenn County": 29950,
+	    "Humboldt County": 29950,
+	    "Imperial County": 29950,
+	    "Inyo County": 35600,
+	    "Kern County": 29950,
+	    "Kings County": 29950,
+	    "Lake County": 29950,
+	    "Lassen County": 34400,
+	    "Los Angeles County": 45050,
+	    "Madera County": 29950,
+	    "Marin County": 65800,
+	    "Mariposa County": 32750,
+	    "Mendocino County": 30050,
+	    "Merced County": 29950,
+	    "Modoc County": 29950,
+	    "Mono County": 37900,
+	    "Monterey County": 40700,
+	    "Napa County": 46550,
+	    "Nevada County": 38150,
+	    "Orange County": 52150,
+	    "Placer County": 37100,
+	    "Plumas County": 31300,
+	    "Riverside County": 32250,
+	    "Sacramento County": 37100,
+	    "San Benito County": 41800,
+	    "San Bernardino County": 32250,
+	    "San Diego County": 45450,
+	    "San Francisco County": 65800,
+	    "San Joaquin County": 30550,
+	    "San Luis Obispo County": 40850,
+	    "San Mateo County": 65800,
+	    "Santa Barbara County": 45000,
+	    "Santa Clara County": 59700,
+	    "Santa Cruz County": 50100,
+	    "Shasta County": 30900,
+	    "Sierra County": 33550,
+	    "Siskiyou County": 29950,
+	    "Solano County": 40200,
+	    "Sonoma County": 44050,
+	    "Stanislaus County": 29950,
+	    "Sutter County": 29950,
+	    "Tehama County": 29950,
+	    "Trinity County": 29950,
+	    "Tulare County": 29950,
+	    "Tuolumne County": 30100,
+	    "Ventura County": 49950,
+	    "Yolo County": 37350,
+	    "Yuba County": 29950
+	};
+
 	var width = 650,
 		height = 600;
 
@@ -71,6 +123,8 @@ div.tooltip {
 
 	var path = d3.geo.path()
 		.projection(projection);
+
+	var baseBlue = d3.color("#4486c4");
 
 	var svg = d3.select("#map").append("svg")
 		.attr("width", width)
@@ -89,6 +143,16 @@ div.tooltip {
 			  .data(topojson.feature(ca, ca.objects.subunits).features)
 			.enter().append("path")
 			.attr("class", function(d) { return "subunit " + d.properties.name; })
+			.style("fill", function(d) {
+				var lowest = 29950;
+				var highest = 65800;
+				var coefficient = (highest - INCOME_LIMITS[d.properties.fullName]) / (highest - lowest);
+				if (coefficient > .5) {
+					return baseBlue.brighter((coefficient - .5) * 2);
+				} else {
+					return baseBlue.darker((.5 - coefficient) * 2);
+				}
+			})
 			.attr("d", path)
 			.on("mouseover", function(d){ //tooltip
 				div.transition()
@@ -98,7 +162,7 @@ div.tooltip {
 					.style("left", (d3.event.pageX) + 10 + "px")
 					.style("top", (d3.event.pageY - 30) + "px"); 
 			})
-			.on("mouseout", function(d) { 
+			.on("mouseout", function(d) {
 				div.transition()
 					.duration(500)
 					.style("opacity", 0.0);
